@@ -81,7 +81,7 @@ try:
 		                   "/SIMPLE-MIB.txt" ]
 	)
 except netsnmpagent.netsnmpAgentException as e:
-	print "{0}: {1}".format(prgname, e)
+	print("{0}: {1}".format(prgname, e))
 	sys.exit(1)
 
 # Then we create all SNMP scalar variables we're willing to serve.
@@ -195,15 +195,15 @@ secondTableRow2.setRowCell(3, agent.Unsigned32(12842))
 try:
 	agent.start()
 except netsnmpagent.netsnmpAgentException as e:
-	print "{0}: {1}".format(prgname, e)
+	print("{0}: {1}".format(prgname, e))
 	sys.exit(1)
 
-print "{0}: AgentX connection to snmpd established.".format(prgname)
+print("{0}: AgentX connection to snmpd established.".format(prgname))
 
 # Helper function that dumps the state of all registered SNMP variables
 def DumpRegistered():
 	for context in agent.getContexts():
-		print "{0}: Registered SNMP objects in Context \"{1}\": ".format(prgname, context)
+		print("{0}: Registered SNMP objects in Context \"{1}\": ".format(prgname, context))
 		vars = agent.getRegistered(context)
 		pprint.pprint(vars, width=columns)
 		print
@@ -225,7 +225,7 @@ signal.signal(signal.SIGHUP, HupHandler)
 
 # The simple agent's main loop. We loop endlessly until our signal
 # handler above changes the "loop" variable.
-print "{0}: Serving SNMP requests, send SIGHUP to dump SNMP object state, press ^C to terminate...".format(prgname)
+print("{0}: Serving SNMP requests, send SIGHUP to dump SNMP object state, press ^C to terminate...".format(prgname))
 
 loop = True
 while (loop):
@@ -243,5 +243,5 @@ while (loop):
 	simpleCounter32Context2.increment() # By 1
 	simpleCounter64Context2.increment(5) # By 5
 
-print "{0}: Terminating.".format(prgname)
+print("{0}: Terminating.".format(prgname))
 agent.shutdown()

@@ -30,7 +30,7 @@ MAX_STRING_SIZE = 1024
 # http://stackoverflow.com/questions/36932/how-can-i-represent-an-enum-in-python
 def enum(*sequential, **named):
 	enums = dict(zip(sequential, range(len(sequential))), **named)
-	enums["Names"] = dict((value,key) for key, value in enums.iteritems())
+	enums["Names"] = dict((value,key) for key, value in enums.items())
 	return type("Enum", (), enums)
 
 # Indicates the status of a netsnmpAgent object
@@ -150,7 +150,7 @@ class netsnmpAgent(object):
 			msgtext = re.sub(
 				"^(Warning|Error): *",
 				"",
-				logmsg.contents.msg.rstrip("\n")
+				logmsg.contents.msg.decode('utf-8').rstrip("\n")
 			)
 
 			# Intercept log messages related to connection establishment and
@@ -190,7 +190,7 @@ class netsnmpAgent(object):
 			if self.LogHandler:
 				self.LogHandler(msgprio, msgtext)
 			else:
-				print "[{0}] {1}".format(msgprio, msgtext)
+				print("[{0}] {1}".format(msgprio, msgtext))
 
 			return 0
 
@@ -275,7 +275,7 @@ class netsnmpAgent(object):
 			if libnsa.netsnmp_ds_set_string(
 				NETSNMP_DS_APPLICATION_ID,
 				NETSNMP_DS_AGENT_X_SOCKET,
-				self.MasterSocket
+				self.MasterSocket.encode('utf-8')
 			) != SNMPERR_SUCCESS:
 				raise netsnmpAgentException(
 					"netsnmp_ds_set_string() failed for NETSNMP_DS_AGENT_X_SOCKET!"
@@ -286,14 +286,14 @@ class netsnmpAgent(object):
 			if libnsa.netsnmp_ds_set_string(
 				NETSNMP_DS_LIBRARY_ID,
 				NETSNMP_DS_LIB_PERSISTENT_DIR,
-				ctypes.c_char_p(self.PersistenceDir)
+				ctypes.c_char_p(self.PersistenceDir.encode('utf-8'))
 			) != SNMPERR_SUCCESS:
 				raise netsnmpAgentException(
 					"netsnmp_ds_set_string() failed for NETSNMP_DS_LIB_PERSISTENT_DIR!"
 				)
 
 		# Initialize net-snmp library (see netsnmp_agent_api(3))
-		if libnsa.init_agent(self.AgentName) != 0:
+		if libnsa.init_agent(self.AgentName.encode('utf-8')) != 0:
 			raise netsnmpAgentException("init_agent() failed!")
 
 		# Initialize MIB parser
@@ -306,7 +306,7 @@ class netsnmpAgent(object):
 		# format.
 		if self.UseMIBFiles and self.MIBFiles:
 			for mib in self.MIBFiles:
-				if libnsa.read_mib(mib) == 0:
+				if libnsa.read_mib(mib.encode('utf-8')) == 0:
 					raise netsnmpAgentException("netsnmp_read_module({0}) " +
 					                            "failed!".format(mib))
 
@@ -334,7 +334,7 @@ class netsnmpAgent(object):
 
 			# Let libsnmpagent parse the OID
 			if libnsa.read_objid(
-				oidstr,
+				oidstr.encode('utf-8'),
 				ctypes.cast(ctypes.byref(oid), c_oid_p),
 				ctypes.byref(oid_len)
 			) == 0:
@@ -879,7 +879,7 @@ class netsnmpAgent(object):
 		    Returned is a dictionary objects for the specified "context",
 		    which defaults to the default context. """
 		myobjs = {}
-		for oidstr, snmpobj in self._objs[context].iteritems():
+		for oidstr, snmpobj in self._objs[context].items():
 			myobjs[oidstr] = {
 				"type": type(snmpobj).__name__,
 				"value": snmpobj.value()
